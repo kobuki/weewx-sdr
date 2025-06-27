@@ -2264,6 +2264,40 @@ class FOWS90Packet(Packet):
         return pkt
 
 
+class FOWN34Packet(Packet):
+    # time: 2025-06-27 12:20:15,
+    # model: Fineoffset-WN34,
+    # id: 34320,
+    # battery_ok: 0.750,
+    # battery_mV: 1420,
+    # temperature_C: 26.600,
+    # mic: CRC
+
+    # {"time" : "2025-06-27 12:20:15", "model" : "Fineoffset-WN34", "id" : 34320, "battery_ok" : 0.750, "battery_mV" : 1420, "temperature_C" : 26.600, "mic" : "CRC"}
+
+    IDENTIFIER = "Fineoffset-WN34"
+
+    @staticmethod
+    def parse_json(obj):
+        sensor_id = obj.get('id')
+        pkt = dict()
+        pkt['dateTime'] = Packet.parse_time(obj.get('time'))
+        pkt['usUnits'] = weewx.METRICWX
+        pkt['battery'] = Packet.get_battery(obj)
+        v = Packet.get_float(obj, 'battery_mV')
+        if v is not None:
+            v = round( v * .001, 2 )
+            pkt['supplyVoltage'] = v
+        pkt['temperature'] = Packet.get_float(obj, 'temperature_C')
+        pkt['freq1'] = Packet.get_float(obj, 'freq1')
+        pkt['freq2'] = Packet.get_float(obj, 'freq2')
+        pkt['rssi'] = Packet.get_float(obj, 'rssi')
+        pkt['snr'] = Packet.get_float(obj, 'snr')
+        pkt['noise'] = Packet.get_float(obj, 'noise')
+        pkt = Packet.add_identifiers(pkt, sensor_id, FOWN34Packet.__name__)
+        return pkt
+
+
 class Hideki(object):
     @staticmethod
     def insert_ids(pkt, pkt_type):
